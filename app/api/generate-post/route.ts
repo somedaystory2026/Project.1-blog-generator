@@ -335,29 +335,6 @@ function buildRelatedLinksHtml(subLinks: any[], topicType = 'policy') {
 ${buttons}
 </div>`
 }
-
-function buildNavigationLinksHtml({
-  previousUrl,
-  nextUrl,
-  mainUrl,
-}: {
-  previousUrl?: string
-  nextUrl?: string
-  mainUrl?: string
-}) {
-  const prev = previousUrl || 'PREVIOUS_POST_URL'
-  const next = nextUrl || 'NEXT_POST_URL'
-  const main = mainUrl || 'MAIN_POST_URL'
-
-  return `
-<h2 class="wp-h2" id="post-navigation">이전글·다음글 바로가기</h2>
-<div class="related-button-box">
-  <a class="related-btn" href="${prev}" target="_blank" rel="noopener noreferrer">⬅ 이전글 보기</a>
-  <a class="related-btn" href="${next}" target="_blank" rel="noopener noreferrer">➡ 다음글 보기</a>
-  <a class="related-btn" href="${main}" target="_blank" rel="noopener noreferrer">🏠 메인 가이드 보기</a>
-</div>`
-}
-
 export async function POST(req: NextRequest) {
   try {
     if (!process.env.OPENAI_API_KEY) {
@@ -406,12 +383,7 @@ export async function POST(req: NextRequest) {
       .join('\n\n')
 
     const relatedLinksHtml = buildRelatedLinksHtml(subLinks, topicType)
-    const navigationLinksHtml = buildNavigationLinksHtml({
-      previousUrl,
-      nextUrl,
-      mainUrl,
-    })
-
+    
     const topicGuide = topicType === 'stock'
       ? `
 [주제 유형: 주식·경제 분석형]
@@ -448,7 +420,6 @@ export async function POST(req: NextRequest) {
 4. 모든 버튼 링크는 새창으로 열리도록 target="_blank" rel="noopener noreferrer" 속성을 반드시 포함한다.
 
 [반드시 포함할 이전글/다음글/메인글 버튼 HTML]
-${navigationLinksHtml}
 `
       : `
 메인글 내부링크 규칙:
