@@ -1,0 +1,33 @@
+@import "tailwindcss";
+
+html {
+  background-color: #f4f5f7;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/* 스크롤바 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* 줄 수 제한 */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
