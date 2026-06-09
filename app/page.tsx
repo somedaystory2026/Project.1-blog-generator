@@ -195,7 +195,11 @@ const applyPreset = (key: keyof typeof RSS_PRESETS) => {
   }
 
   const removeInternalLinksBox = (postHtml: string) => {
-    return postHtml.replace(/<!-- INTERNAL_LINKS_START -->[\s\S]*?<!-- INTERNAL_LINKS_END -->/g, '').trim()
+    return postHtml
+      .replace(/<!-- INTERNAL_LINKS_START -->[\s\S]*?<!-- INTERNAL_LINKS_END -->/g, '')
+      .replace(/<h2 class="wp-h2" id="post-navigation">이전글·다음글 바로가기<\/h2>\s*<div class="related-button-box">[\s\S]*?<\/div>/g, '')
+      .replace(/<h2 class="wp-h2" id="internal-links">이전글·다음글 바로가기<\/h2>\s*<div class="related-button-box">[\s\S]*?<\/div>/g, '')
+      .trim()
   }
 
   const buildInternalLinksBox = ({
@@ -208,9 +212,15 @@ const applyPreset = (key: keyof typeof RSS_PRESETS) => {
     main?: PublishedPost
   }) => {
     const buttons = [
-      prev ? `<a class="related-btn" href="${prev.url}">← 이전글: ${prev.title}</a>` : '',
-      next ? `<a class="related-btn" href="${next.url}">다음글: ${next.title} →</a>` : '',
-      main ? `<a class="related-btn" href="${main.url}">전체 가이드 메인글 바로가기</a>` : '',
+      prev
+        ? `<a class="related-btn" href="${prev.url}" target="_blank" rel="noopener noreferrer">← 이전글: ${prev.title}</a>`
+        : '',
+      next
+        ? `<a class="related-btn" href="${next.url}" target="_blank" rel="noopener noreferrer">다음글: ${next.title} →</a>`
+        : '',
+      main
+        ? `<a class="related-btn" href="${main.url}" target="_blank" rel="noopener noreferrer">전체 가이드 메인글 바로가기</a>`
+        : '',
     ].filter(Boolean).join('\n')
 
     if (!buttons) return ''
@@ -227,11 +237,11 @@ ${buttons}
   const appendInternalLinks = (postHtml: string, linksBox: string) => {
     const cleaned = removeInternalLinksBox(postHtml)
     if (!linksBox) return cleaned
-    if (cleaned.includes('</div>')) {
-      const lastDiv = cleaned.lastIndexOf('</div>')
-      return `${cleaned.slice(0, lastDiv)}\n${linksBox}\n${cleaned.slice(lastDiv)}`
-    }
-    return `${cleaned}\n${linksBox}`
+
+    const closingIndex = cleaned.lastIndexOf('</div>')
+    if (closingIndex === -1) return `${cleaned}\n${linksBox}`
+
+    return `${cleaned.slice(0, closingIndex)}\n${linksBox}\n${cleaned.slice(closingIndex)}`
   }
 
   const safeCopyToClipboard = async (text: string) => {
