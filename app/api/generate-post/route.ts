@@ -236,6 +236,7 @@ function cleanGeneratedHtml(html: string) {
     .replace(/<div class="post-share-buttons[\s\S]*?<\/div>\s*<\/div>\s*<\/div>/gi, '')
     .replace(/<div class="post-header[\s\S]*?<\/div>\s*<\/div>/gi, '')
     .replace(/<div class="post-footer[\s\S]*?<\/div>\s*<\/div>/gi, '')
+    .replace(/<h2 class="wp-h2" id="post-navigation">이전글·다음글 바로가기<\/h2>\s*<div class="related-button-box">\s*<a class="related-btn"[^>]*>[^<]*이전글 보기<\/a>\s*<a class="related-btn"[^>]*>[^<]*다음글 보기<\/a>\s*<a class="related-btn"[^>]*>[^<]*메인 가이드 보기<\/a>\s*<\/div>/gi, '')
     .trim()
 
   const styleIndex = cleaned.search(/<style[\s\S]*?>/i)
@@ -348,9 +349,6 @@ export async function POST(req: NextRequest) {
       articles,
       plan,
       subLinks = [],
-      previousUrl = '',
-      nextUrl = '',
-      mainUrl = '',
     } = await req.json()
 
     if (!Array.isArray(articles) || articles.length === 0) {
@@ -414,12 +412,9 @@ export async function POST(req: NextRequest) {
     const navRule = p.type === 'sub'
       ? `
 서브글 내부링크 규칙:
-1. 본문 후반부, FAQ 바로 위에 아래 이전글/다음글/메인글 버튼 HTML을 반드시 딱 1회만 포함한다.
-2. 동일한 버튼을 추가 생성하지 않는다.
-3. href 값은 실제 URL이 있으면 실제 URL을 사용하고, 아직 없으면 placeholder를 유지한다.
-4. 모든 버튼 링크는 새창으로 열리도록 target="_blank" rel="noopener noreferrer" 속성을 반드시 포함한다.
-
-[반드시 포함할 이전글/다음글/메인글 버튼 HTML]
+1. 이 API에서는 이전글/다음글/메인글 버튼 영역을 절대 생성하지 않는다.
+2. "이전글·다음글 바로가기", "이전글 보기", "다음글 보기", "메인 가이드 보기" 문구를 절대 출력하지 않는다.
+3. 서브글의 이전글/다음글/메인글 버튼은 발행 단계에서 별도 삽입되므로 본문 HTML에는 포함하지 않는다.
 `
       : `
 메인글 내부링크 규칙:
@@ -499,7 +494,7 @@ HTML 출력 형태는 반드시 아래 순서를 따른다.
 15. 마지막 공식 홈페이지 CTA 버튼
 16. ${p.type === 'main'
   ? '관련글 버튼 영역은 반드시 제공된 HTML만 1회 사용'
-  : '이전글/다음글/메인글 버튼 영역은 반드시 제공된 HTML만 1회 사용'}
+  : '이전글/다음글/메인글 버튼 영역은 생성하지 않음'}
 17. 면책문구
 18. <div class="hashtags">#태그 5개</div>
 19. </div>
@@ -507,8 +502,9 @@ HTML 출력 형태는 반드시 아래 순서를 따른다.
 중요:
 중복 버튼 방지 규칙:
 - 관련글 버튼을 새로 생성하지 않는다.
-- 이전글/다음글 버튼을 새로 생성하지 않는다.
-- 제공된 HTML만 정확히 1회 사용한다.
+- 메인글은 제공된 관련글 HTML만 정확히 1회 사용한다.
+- 서브글은 이전글/다음글/메인글 버튼을 절대 생성하지 않는다.
+- "이전글 보기", "다음글 보기", "메인 가이드 보기" 기본 버튼을 출력하지 않는다.
 - 동일한 버튼 영역을 2번 출력하지 않는다.
 
 디자인 강제 규칙:
