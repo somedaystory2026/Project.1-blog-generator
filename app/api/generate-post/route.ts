@@ -442,9 +442,10 @@ export async function POST(req: NextRequest) {
     const navRule = p.type === 'sub'
       ? `
 서브글 내부링크 규칙:
-1. 본문 후반부, FAQ 바로 위에 아래 이전글/다음글/메인글 버튼 HTML을 반드시 그대로 포함한다.
-2. href 값은 실제 URL이 있으면 실제 URL을 사용하고, 아직 없으면 placeholder를 유지한다.
-3. 모든 버튼 링크는 새창으로 열리도록 target="_blank" rel="noopener noreferrer" 속성을 반드시 포함한다.
+1. 본문 후반부, FAQ 바로 위에 아래 이전글/다음글/메인글 버튼 HTML을 반드시 딱 1회만 포함한다.
+2. 동일한 버튼을 추가 생성하지 않는다.
+3. href 값은 실제 URL이 있으면 실제 URL을 사용하고, 아직 없으면 placeholder를 유지한다.
+4. 모든 버튼 링크는 새창으로 열리도록 target="_blank" rel="noopener noreferrer" 속성을 반드시 포함한다.
 
 [반드시 포함할 이전글/다음글/메인글 버튼 HTML]
 ${navigationLinksHtml}
@@ -525,10 +526,19 @@ HTML 출력 형태는 반드시 아래 순서를 따른다.
 13. 본문 중간에 <div class="cta-container"><a class="cta-btn" href="공식URL" target="_blank" rel="noopener noreferrer nofollow">공식 홈페이지 확인</a></div>를 1개 넣는다.
 14. <div class="faq-section">FAQ 7개 이상</div>
 15. 마지막 공식 홈페이지 CTA 버튼
-16. ${p.type === 'main' ? '관련글 버튼 영역' : '이전글/다음글/메인글 버튼 영역'}
+16. ${p.type === 'main'
+  ? '관련글 버튼 영역은 반드시 제공된 HTML만 1회 사용'
+  : '이전글/다음글/메인글 버튼 영역은 반드시 제공된 HTML만 1회 사용'}
 17. 면책문구
 18. <div class="hashtags">#태그 5개</div>
 19. </div>
+
+중요:
+중복 버튼 방지 규칙:
+- 관련글 버튼을 새로 생성하지 않는다.
+- 이전글/다음글 버튼을 새로 생성하지 않는다.
+- 제공된 HTML만 정확히 1회 사용한다.
+- 동일한 버튼 영역을 2번 출력하지 않는다.
 
 디자인 강제 규칙:
 - 모든 H2는 반드시 <h2 class="wp-h2" id="..."> 형식으로 작성한다.
